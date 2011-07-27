@@ -294,7 +294,7 @@ class MonetDBData
   def parse_tuple(tuple)
     fields = Array.new
     # remove trailing  "["
-    tuple = tuple.gsub(/^\[\s+/,'')
+    tuple = tuple.to_s.gsub(/^\[\s+/,'')
     
     tuple.split(/,\t/).each do |f|
       fields << f.gsub(/\\/, '').gsub(/^"/,'').gsub(/"$/,'').gsub(/\"/, '')
