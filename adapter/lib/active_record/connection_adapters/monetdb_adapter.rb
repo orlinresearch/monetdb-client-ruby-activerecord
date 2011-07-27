@@ -29,17 +29,14 @@ require 'MonetDB'
 module ActiveRecord
   class Base
     # Establishes a connection to the database that's used by all Active Record objects
-    def self.monetdb_connection(config) 
-      #TODO: is this required?
-      #require_library_or_gem('MonetDB')
-
+    def self.monetdb_connection(config)
       # extract connection parameters
       config 	= config.symbolize_keys
 
       host = config[:host] || "127.0.0.1"
       port = config[:port] || 50000
-      username 	= config[:username].to_s if config[:username] || "monetdb"
-      password	= config[:password].to_s if config[:password] || "monetdb"
+      username 	= config[:username].to_s if config[:username]
+      password	= config[:password].to_s if config[:password]
 
       # Use "sql" as default language if none is specified
       lang = config[:lang] || "sql"
