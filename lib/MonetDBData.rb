@@ -247,49 +247,6 @@ class MonetDBData
     end
   end
   
-  # Parses the data returned by the server and stores the content of header and record set 
-  # for a Q_TABLE query in two (immutable) arrays. The Q_TABLE instance is then reperesented
-  # by the OpenStruct variable @Q_TABLE_instance with separate fields for 'header' and 'record_set'.
-  #
-  #def parse_tuples(record_set)
-  #  processed_record_set = Array.new
-    
-  #  record_set.split("]\n").each do |row|
-      
-      # remove trailing and ending "[ ]"
-  #    row = row.gsub(/^\[\s+/,'')
-  #    row = row.gsub(/\t\]\n$/,'')
-    
-  #    row = row.split(/\t/)
-    
-  #    processed_row = Array.new
-    
-      # index the field position
-  #    position = 0
-  #    while position < row.length
-  #      field = row[position].gsub(/,$/, '')
-        
-  #      if @type_cast == true
-  #        if @header["columns_type"] != nil
-  #          name = @header["columns_name"][position]
-  #          if @header["columns_type"][name] != nil
-  #            type = @header["columns_type"].fetch(name)
-  #          end
-
-          #  field = self.type_cast(field, type)
-  #        field = type_cast(field, type)
-
-  #        end
-  #      end
-      
-  #      processed_row << field.gsub(/\\/, '').gsub(/^"/,'').gsub(/"$/,'').gsub(/\"/, '')
-  #      position += 1
-  #    end
-  #    processed_record_set << processed_row
-  #  end
-  #  return processed_record_set
-  #end
-  
   # parse one tuple as returned from the server
   def parse_tuple(tuple)
     fields = Array.new
@@ -376,22 +333,6 @@ class String
   end
   
   def getString
-    #data = self.reverse
-    # parse the string starting from the end; 
-    #escape = false
-    #position = 0
-    #for i in data
-    #  if i == '\\' and escape == true
-    #      if data[position+1] == '\\' 
-    #      data[position+1] = ''
-    #      escape = true
-    #    else
-    #      escape = false
-    #    end
-    #  end
-    #  position += 1
-    #end
-    #data.reverse
     self.gsub(/^"/,'').gsub(/"$/,'')
   end
   
