@@ -442,14 +442,14 @@ class MonetDBConnection
   # Sets the time zone according to the Operating System settings
   def set_timezone()
     tz = Time.new
-    tz_offset = "'%+03d:00'" % (tz.gmt_offset / @@HOUR)
+    tz_offset = "%+03d:00" % (tz.gmt_offset / @@HOUR)
 
-    query_tz = "sSET TIME ZONE INTERVAL " + tz_offset + " HOUR TO MINUTE;"
+    query_tz = "sSET TIME ZONE INTERVAL '#{tz_offset}' HOUR TO MINUTE;"
 
     # Perform the query directly within the method
     send(query_tz)
-    response = receive
-    
+    response = receive()
+
     if response == MSG_PROMPT
       true
     elsif response[0].chr == MSG_INFO
