@@ -17,39 +17,9 @@
 
 # Exception classes for the ruby-monetdb driver
 
-class MonetDBQueryError < StandardError
-  def initialize(e)
-    $stderr.puts e
-  end
-end
-
-class MonetDBDataError < StandardError
-  def initialize(e)
-    $stderr.puts e
-  end
-end
-
-class MonetDBCommandError < StandardError
-  def initialize(e)
-    $stderr.puts e
-  end
-end
-
-class MonetDBConnectionError < StandardError
-  def initialize(e)
-    $stderr.puts e
-  end
-end
-
-
-class MonetDBSocketError < StandardError
-  def initialize(e)
-    $stderr.puts e
-  end
-end
-
-class MonetDBProtocolError < StandardError
-   def initialize(e)
-     $stderr.puts e
-   end  
-end
+class MonetDBQueryError < StandardError; end
+class MonetDBDataError < StandardError; end
+class MonetDBCommandError < StandardError; end
+class MonetDBConnectionError < StandardError; end
+class MonetDBSocketError < StandardError; end
+class MonetDBProtocolError < StandardError; end
