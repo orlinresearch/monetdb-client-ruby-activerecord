@@ -26,7 +26,8 @@ require 'MonetDBConnection'
 require 'logger'
 
 class MonetDBData 
-  @@DEBUG               = false
+  @@DEBUG = false
+  attr_accessor :last_insert_id, :affected_rows
  
   def initialize(connection)
     @connection = connection
@@ -38,7 +39,6 @@ class MonetDBData
     
     @record_set = []
     @index = 0 # Position of the last returned record
-    
     
     @row_count = 0
     @row_offset = 10
@@ -133,7 +133,7 @@ class MonetDBData
      col = Array.new
      # Scan the record set by row
      @record_set.each do |row|
-       col << parse_tuple(row[position])
+       col << parse_tuple(row)[position]
      end
 
      return col
@@ -205,6 +205,11 @@ class MonetDBData
           @action = Q_TRANSACTION
         elsif row[1].chr == Q_CREATE
           @action = Q_CREATE
+        elsif row[1].chr == Q_UPDATE
+          @action = Q_UPDATE
+          result = row.split(' ')
+          @affected_rows = result[1].to_i
+          @last_insert_id = result[2].to_i
         end
       elsif row[0].chr == MSG_INFO
         raise MonetDBQueryError, row

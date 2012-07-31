@@ -24,6 +24,7 @@
 # Refreshed by Martin Samson (2011)
 
 require 'active_record/connection_adapters/abstract_adapter'
+$LOAD_PATH.unshift('/home/bunyan/Programming/MonetDB/or_adapter/monetdb-client-ruby-activerecord/lib/')
 require 'MonetDB'
 
 module ActiveRecord
@@ -64,8 +65,9 @@ module ActiveRecord
       def type_cast(value)
         if( value.nil? )
           return nil
-        elsif( type == :integer && value =~/next value for "sys"."seq_(\d)*"/ )
-          return value
+        elsif( type == :integer && value =~/next value for/ )
+          #return value
+          return nil
         else
           super
         end
@@ -117,8 +119,13 @@ module ActiveRecord
     end
   
     class MonetDBAdapter < AbstractAdapter
+      class BindSubstitution < Arel::Visitors::MySQL
+        include Arel::Visitors::BindVisitor
+      end
+
       def initialize(connection, logger,   connection_options, config)
         super(connection, logger)
+        @visitor = BindSubstitution.new self
         @connection_options, @config = connection_options, config
         connect
       end
@@ -331,6 +338,10 @@ module ActiveRecord
         
         return result
       end
+
+      def primary_key(table)
+        'id'
+      end
   
       # Adds a new column to the named table.
       # See TableDefinition#column for details of the options you can use.
@@ -346,7 +357,7 @@ module ActiveRecord
       # Return an array with all non-system table names of the current 
       # database schema
       def tables(name = nil)
-        cur_schema =  select_value("select current_schema",name)
+        cur_schema =  select_value("select current_schema", name)
         select_values("	SELECT t.name FROM sys._tables t, sys.schemas s 
   			WHERE s.name = '#{cur_schema}' 
   				AND t.schema_id = s.id 
@@ -423,13 +434,21 @@ module ActiveRecord
       end
   
       def execute(sql, name = nil)
-        # This substitution is needed. 
+        #puts "execute: #{sql}"
+        # This substitution is needed.
         sql =  sql.gsub('!=', '<>')
         sql += ';'
-        #log(sql, name) do
-           hdl = @connection.query(sql) 
-        #end
-      end 
+        @connection.query(sql)
+      end
+
+      def exec_query(sql, name = nil, binds = [])
+        #puts "exec_query: #{sql}"
+        @connection.query(sql)
+      end
+
+      def last_inserted_id(result)
+        result.last_insert_id
+      end
   
       # Begins the transaction.
       def begin_db_transaction
@@ -483,28 +502,34 @@ module ActiveRecord
   
   
       protected
+        # restructure result returned by execute
+        def process_hdl(hdl)
+          result = []
+
+          if (num_rows = hdl.num_rows) > 0
+            fields = hdl.name_fields
+
+            num_rows.times do
+              result << {}
+            end
+
+            fields.each do |f|
+              cols = hdl.fetch_column_name(f)
+              cols.each_with_index do |val, i|
+                result[i][f] = val
+              end
+            end
+          end
+
+          result
+        end
+
         # Returns an array of record hashes with the column names as keys and
         # column values as values.
-        def select(sql, name = nil)
-          hdl = execute(sql,name) 
-         
-          fields = []
-          result = []
-  
-          if( (num_rows = hdl.num_rows) > 0 )
-            fields = hdl.name_fields
-            
-            # Must do a successful mapi_fetch_row first
-               
-              row_hash={}
-              fields.each_with_index do |f, i| 
-                row_hash[f] = hdl.fetch_column_name(f)
-              end
-              result << row_hash
-            
-          end
-          
-          result
+        def select(sql, name = nil, binds = [])
+          hdl = execute(sql,name)
+
+          process_hdl(hdl)
         end
   
         # Executes the update statement and returns the number of rows affected.
