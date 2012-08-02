@@ -65,7 +65,7 @@ class MonetDBConnection
   @@HOUR                = 3600
 
   # maximum size (in bytes) for a monetdb message to be sent
-  @@MAX_MESSAGE_SIZE    = 32766
+  @@MAX_MESSAGE_SIZE    = 8192
   
   # endianness of a message sent to the server
   @@CLIENT_ENDIANNESS   = "BIG"

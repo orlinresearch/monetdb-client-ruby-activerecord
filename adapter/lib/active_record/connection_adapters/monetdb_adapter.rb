@@ -516,6 +516,7 @@ module ActiveRecord
             fields.each do |f|
               cols = hdl.fetch_column_name(f)
               cols.each_with_index do |val, i|
+                val = nil if val == 'NULL'
                 result[i][f] = val
               end
             end
