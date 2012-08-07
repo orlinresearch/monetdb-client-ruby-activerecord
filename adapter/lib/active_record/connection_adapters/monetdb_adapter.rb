@@ -449,6 +449,11 @@ module ActiveRecord
       def last_inserted_id(result)
         result.last_insert_id
       end
+
+      def delete(arel, name = nil, binds = [])
+        res = super(arel, name, binds)
+        res.affected_rows
+      end
   
       # Begins the transaction.
       def begin_db_transaction
@@ -501,57 +506,57 @@ module ActiveRecord
      #=======END=OF=DATABASE=STATEMENTS=========#
   
   
-      protected
-        # restructure result returned by execute
-        def process_hdl(hdl)
-          result = []
 
-          if (num_rows = hdl.num_rows) > 0
-            fields = hdl.name_fields
+      # restructure result returned by execute
+      def process_hdl(hdl)
+        result = []
 
-            num_rows.times do
-              result << {}
-            end
+        if (num_rows = hdl.num_rows) > 0
+          fields = hdl.name_fields
 
-            fields.each do |f|
-              cols = hdl.fetch_column_name(f)
-              cols.each_with_index do |val, i|
-                val = nil if val == 'NULL'
-                result[i][f] = val
-              end
-            end
+          num_rows.times do
+            result << {}
           end
 
-          result
+          fields.each do |f|
+            cols = hdl.fetch_column_name(f)
+            cols.each_with_index do |val, i|
+              val = nil if val == 'NULL'
+              result[i][f] = val
+            end
+          end
         end
 
-        # Returns an array of record hashes with the column names as keys and
-        # column values as values.
-        def select(sql, name = nil, binds = [])
-          hdl = execute(sql,name)
+        result
+      end
 
-          process_hdl(hdl)
-        end
-  
-        # Executes the update statement and returns the number of rows affected.
-        def update_sql(sql, name = nil)
-  	      hdl = execute(sql,name)
-          # affected_rows = hdl.affected_rows
-          return false
-        end
-        
-        # Returns the last auto-generated ID from the affected table.
-        def insert_sql(sql, name = nil, pk = nil, id_value = nil, sequence_name = nil)
-  	    # Ensures that the auto-generated id  value will not violate the 
-  	    # primary key constraint. Read the comments of make_sure_pk_works
-  	    # and documentation for further information.
-  	    # comment out for production code(?)
-  	      # table_name = extract_table_name_from_insertion_query(sql)
-  	      # make_sure_pk_works(table_name,name)	
-          hdl = execute(sql, name)
-          # last_auto_generated_id = hdl.get_last_auto_generated_id
-        end
-        
+      # Returns an array of record hashes with the column names as keys and
+      # column values as values.
+      def select(sql, name = nil, binds = [])
+        hdl = execute(sql,name)
+
+        process_hdl(hdl)
+      end
+
+      # Executes the update statement and returns the number of rows affected.
+      def update_sql(sql, name = nil)
+        hdl = execute(sql,name)
+        hdl.affected_rows
+      end
+
+      # Returns the last auto-generated ID from the affected table.
+      def insert_sql(sql, name = nil, pk = nil, id_value = nil, sequence_name = nil)
+      # Ensures that the auto-generated id  value will not violate the
+      # primary key constraint. Read the comments of make_sure_pk_works
+      # and documentation for further information.
+      # comment out for production code(?)
+        # table_name = extract_table_name_from_insertion_query(sql)
+        # make_sure_pk_works(table_name,name)
+        hdl = execute(sql, name)
+        hdl.last_insert_id
+      end
+
+      protected
         # Some tests insert some tuples with the id values set. In other words, the sequence
         # is not used to generate a value for the primary key column named id. When a new tuple
         # it to be inserted, where the id value is not set explicitly, a primary key violation will
