@@ -24,7 +24,6 @@
 # Refreshed by Martin Samson (2011)
 
 require 'active_record/connection_adapters/abstract_adapter'
-$LOAD_PATH.unshift('/home/bunyan/Programming/MonetDB/or_adapter/monetdb-client-ruby-activerecord/lib/')
 require 'MonetDB'
 
 module ActiveRecord
