@@ -503,38 +503,12 @@ module ActiveRecord
         #"INSERT INTO #{quote_table_name(table_name)}"
       end
      #=======END=OF=DATABASE=STATEMENTS=========#
-  
-  
-
-      # restructure result returned by execute
-      def process_hdl(hdl)
-        result = []
-
-        if (num_rows = hdl.num_rows) > 0
-          fields = hdl.name_fields
-
-          num_rows.times do
-            result << {}
-          end
-
-          fields.each do |f|
-            cols = hdl.fetch_column_name(f)
-            cols.each_with_index do |val, i|
-              val = nil if val == 'NULL'
-              result[i][f] = val
-            end
-          end
-        end
-
-        result
-      end
 
       # Returns an array of record hashes with the column names as keys and
       # column values as values.
       def select(sql, name = nil, binds = [])
         hdl = execute(sql,name)
-
-        process_hdl(hdl)
+        hdl.result_hashes
       end
 
       # Executes the update statement and returns the number of rows affected.

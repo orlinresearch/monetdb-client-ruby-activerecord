@@ -53,11 +53,10 @@ class MonetDBData
     
     return if data == nil
     
-    record_set = "" # temporarly store retrieved rows
+    # temporarly store retrieved rows
     record_set = receive_record_set(data)
 
     if (@lang == LANG_SQL)
-      rows = receive_record_set(data)
       # the fired query is a SELECT; store and return the whole record set
       if @action == Q_TABLE
         @header = parse_header_table(@header)
@@ -139,6 +138,20 @@ class MonetDBData
      return col
    end
 
+  # returns result as an array of hashes
+  def result_hashes
+    result = []
+    @record_set.each do |row|
+      rec = parse_tuple(row)
+      hash = {}
+      @header['columns_name'].each_with_index do |item, i|
+        hash[item] = rec[i]
+        hash[item] = nil if hash[item] == 'NULL'
+      end
+      result << hash
+    end
+    result
+  end
 
   def fetch()
      @index
@@ -190,6 +203,7 @@ class MonetDBData
   # store block of data, parse it and store it.
   def receive_record_set(response)
     rows = ""
+    lines = response.lines.to_a
     response.each_line do |row|   
       if row[0].chr == MSG_QUERY      
         if row[1].chr == Q_TABLE
@@ -217,16 +231,21 @@ class MonetDBData
         # process header data
         @header << row
       elsif row[0].chr == MSG_TUPLE
+        if REPLY_SIZE.to_i == -1
+          # if all results are returned in this response, we don't have to look ahead further
+          return lines.join
+        end
         rows += row
       elsif row[0] == MSG_PROMPT
         return rows
       end
+      lines.shift
     end 
-    return rows # return an array of unparsed tuples
+    rows # return an array of unparsed tuples
   end
   
   def next_block
-    if @row_index == @row_count
+    if REPLY_SIZE.to_i == -1 or @row_index == @row_count
       return false
     else
       # The increment step is small to better deal with ruby socket's performance.
@@ -240,7 +259,6 @@ class MonetDBData
       @row_offset += 1
     end    
       return true
-      
   end
   
   # Formats a query <i>string</i> so that it can be parsed by the server
