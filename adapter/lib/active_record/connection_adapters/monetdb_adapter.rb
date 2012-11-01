@@ -23,6 +23,7 @@
 
 # Refreshed by Martin Samson (2011)
 
+require 'active_record/connection_adapters/monetdb_adapter_config'  # added - I.T.
 require 'active_record/connection_adapters/abstract_adapter'
 require 'MonetDB'
 
@@ -274,8 +275,8 @@ module ActiveRecord
         return [] if table_name.to_s.strip.empty?
         table_name = table_name.to_s if table_name.is_a?(Symbol)
         table_name = table_name.split('.')[-1] unless table_name.nil?
-  
-        hdl = execute("	SELECT name, type, type_digits, type_scale, \"default\", \"null\"  FROM _columns 	WHERE table_id in (SELECT id FROM _tables WHERE name = '#{table_name}')" ,name)
+
+        hdl = execute("	SELECT name, type, type_digits, type_scale, \"default\", \"null\"  FROM #{MDB_SYS_SCHEMA}_columns 	WHERE table_id in (SELECT id FROM #{MDB_SYS_SCHEMA}_tables WHERE name = '#{table_name}' #{MDB_NON_SYSTEM_TABLES_ONLY})" ,name)
         
         num_rows = hdl.num_rows
         return [] unless num_rows >= 1
@@ -357,7 +358,7 @@ module ActiveRecord
       # database schema
       def tables(name = nil)
         cur_schema =  select_value("select current_schema", name)
-        select_values("	SELECT t.name FROM sys._tables t, sys.schemas s 
+        select_values("	SELECT t.name FROM #{MDB_SYS_SCHEMA}_tables t, sys.schemas s
   			WHERE s.name = '#{cur_schema}' 
   				AND t.schema_id = s.id 
   				AND t.system = false",name)
@@ -367,7 +368,7 @@ module ActiveRecord
       def indexes(table_name, name = nil)
         sql_query =  "	SELECT distinct i.name as index_name, k.\"name\", k.nr
   	 		FROM
-  				idxs i, _tables t, objects k 
+  				idxs i, #{MDB_SYS_SCHEMA}_tables t, objects k
   	 		WHERE
   				i.type = 0 AND i.name not like '%pkey' 
   				AND i.id = k.id AND t.id = i.table_id 
@@ -543,7 +544,7 @@ module ActiveRecord
   	    # Assume that table name has one primary key column named id that is associated with a sequence,
   	    # otherwise return
   	      hdl = nil
-  	      sequence_name = extract_sequence_name( select_value("select \"default\" from _columns where table_id in (select id from _tables where name = '#{table_name}') and name='id';") )	
+  	      sequence_name = extract_sequence_name( select_value("select \"default\" from #{MDB_SYS_SCHEMA}_columns where table_id in (select id from #{MDB_SYS_SCHEMA}_tables where name = '#{table_name}') and name='id';") )
   
   	      return if sequence_name.blank?	
   
