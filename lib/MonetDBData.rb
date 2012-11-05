@@ -277,7 +277,8 @@ class MonetDBData
     tuple = tuple.to_s.gsub(/^\[\s+/,'')
     
     tuple.split(/,\t/).each do |f|
-      fields << f.gsub(/\\/, '').gsub(/^"/,'').gsub(/"$/,'').gsub(/\"/, '')
+      #fields << f.gsub(/\\/, '').gsub(/^"/,'').gsub(/"$/,'').gsub(/\"/, '')
+      fields << f.gsub(/\\n/, "\n").gsub(/\\/, '').gsub(/^"/,'').gsub(/"$/,'').gsub(/\"/, '')
     end
     
     return fields.freeze
