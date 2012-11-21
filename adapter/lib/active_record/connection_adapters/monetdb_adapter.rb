@@ -368,7 +368,7 @@ module ActiveRecord
       def indexes(table_name, name = nil)
         sql_query =  "	SELECT distinct i.name as index_name, k.\"name\", k.nr
   	 		FROM
-  				idxs i, #{MDB_SYS_SCHEMA}_tables t, objects k
+  				#{MDB_SYS_SCHEMA}idxs i, #{MDB_SYS_SCHEMA}_tables t, #{MDB_SYS_SCHEMA}objects k
   	 		WHERE
   				i.type = 0 AND i.name not like '%pkey' 
   				AND i.id = k.id AND t.id = i.table_id 
