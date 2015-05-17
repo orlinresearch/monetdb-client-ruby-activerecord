@@ -254,8 +254,7 @@
     def query(q="")
       if  @connection != nil 
         @data = MonetDBData.new(@connection)
-        (puts; puts q; puts) if MDB_LOG_USER_QUERIES  # defined in adapter/lib/active_record/connection_adapter/monetdb_adapter_config.rb
-        @data.execute(q)    
+        @data.execute(q)
       end
       return @data
     end

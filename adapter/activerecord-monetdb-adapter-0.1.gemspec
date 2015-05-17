@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
-   s.required_ruby_version = '>= 1.8.0'
+   s.required_ruby_version = '>= 2.1.0'
    s.name = %q{activerecord-monetdb-adapter}
-   s.version = "0.1"
+   s.version = "0.2"
    s.date = %q{2009-05-18}
    s.authors = ["G Modena"]
    s.email = %q{gm@cwi.nl}
