@@ -501,7 +501,8 @@ module ActiveRecord
       # column values as values.
       def select(sql, name = nil, binds = [])
         hdl = execute(sql, name)
-        hdl.result_hashes
+        col_names = hdl.name_fields rescue []
+        ActiveRecord::Result.new(col_names, hdl.result_hashes.collect(&:values))
       end
 
       # Executes the update statement and returns the number of rows affected.
