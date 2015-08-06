@@ -324,7 +324,7 @@ module ActiveRecord
           end
 
           # instantiate a new column and insert into the result array
-          result << MonetDBColumn.new(col_name, col_default, col_type, col_nullable)
+          result << MonetDBColumn.new(col_name, col_default, self.lookup_cast_type(col_type), col_nullable)
 
         end
 
