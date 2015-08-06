@@ -112,7 +112,7 @@ module ActiveRecord
         column.default = options[:default]
         column.null = options[:null]
 
-        @columns << column unless @columns.include? column
+        @columns_hash[name] = column
         self
       end
 
