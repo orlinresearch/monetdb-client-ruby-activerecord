@@ -101,7 +101,7 @@ module ActiveRecord
       # doesn't support "limit" on integer column.
       # Otherwise same implementation
       def column(name, type, options = {})
-        column = self[name] || ColumnDefinition.new(@base, name, type)
+        column = self[name] || ColumnDefinition.new(name, type)
 
         if type.to_sym != :integer and type.to_sym != :primary_key
           column.limit = options[:limit] || native[type.to_sym][:limit] if options[:limit] or native[type.to_sym]
