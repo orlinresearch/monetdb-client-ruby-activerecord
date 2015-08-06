@@ -423,8 +423,8 @@ module ActiveRecord
 
       # Returns an array of arrays containing the field values.
       # Order of columns in tuple arrays is not guaranteed.
-      def select_rows(sql, name = nil)
-        result = select(sql, name)
+      def select_rows(sql, name = nil, binds = [])
+        result = select(sql, name, binds)
         result.map { |v| v.values }
       end
 
